@@ -1,0 +1,33 @@
+version: '3.5'
+
+volumes:
+  mdq-server-logs:
+
+services:
+
+  mdq-server:
+
+    image: cnafsd/mdq-server:latest
+
+    container_name: mdq-server
+
+    hostname: mdq-server.cnaf.test
+
+    ports:
+      - "8080:80"
+
+    mem_limit: 1.5g
+
+    volumes:
+      - mdq-server-logs:/opt/mdq-server/logs
+      - ./creds:/opt/mdq-server/creds
+      - ./resources/config.xml:/workspace/BOOT-INF/classes/config.xml
+      - ./resources/config/application.properties:/workspace/BOOT-INF/classes/config/application.properties
+      - ./resources/it_idem/beans.xml:/workspace/BOOT-INF/classes/it_idem/beans.xml
+      - ./resources/it_idem/inc-md-cert.pem:/workspace/BOOT-INF/classes/it_idem/idem-signer-20220121.pem
+
+    networks:
+      default:
+        aliases:
+          - mdq-server.local.io
+  
