@@ -28,10 +28,10 @@ USER root
 # Assume that each configuration be set up to bind to port 80.
 #
 EXPOSE 80
-# EXPOSE 443
 
+ENV CREDS_DIR=${VOLS_BASE}/creds
 ENV LOGS_DIR=${VOLS_BASE}/logs
-VOLUME ${LOGS_DIR}
+VOLUME ["${LOGS_DIR}", "${CREDS_DIR}"]
 
 WORKDIR ${MDQ_HOME}
 
