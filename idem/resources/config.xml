@@ -10,30 +10,33 @@
         http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
 
     <!--
-        Import IDEM beans.
-    -->
-    <import resource="file:${mdq.home}/it_idem/beans.xml"/>
-
-    <!--
         Pipeline used to acquire metadata for service.
 
         Input: empty collection.
 
         Output: collection of individual entity metadata items.
-
-        This pipeline imports and processes entities from the IDEM
-        preview aggregate.
     -->
     <bean id="source.SAML" parent="SimplePipeline">
         <property name="stages">
             <list>
+                <bean parent="DOMResourceSourceStage">
+                    <property name="DOMResource">
+                        <bean parent="FileSystemResource">
+				<constructor-arg value="${mdq.home}/edugain2idem-metadata-sha256.xml"/>
+                        </bean>
+                    </property>
+                </bean>
+
+                <ref bean="disassemble"/>
+
                 <ref bean="populateItemIds"/>
                 <ref bean="populateRegistrationAuthorities"/>
 
-                <!-- Add SHA1-transformed IDs for all entities. -->
                 <bean class="net.shibboleth.metadata.pipeline.ItemIdTransformStage">
                     <property name="idTransformers">
-                        <bean class="net.shibboleth.metadata.pipeline.MDQuerySHA1ItemIdTransformer"/>
+                        <list>
+                            <bean class="net.shibboleth.metadata.pipeline.MDQuerySHA1ItemIdTransformer"/>
+                        </list>
                     </property>
                 </bean>
 
@@ -53,5 +56,6 @@
             </list>
         </property>
     </bean>
+
 
 </beans>
