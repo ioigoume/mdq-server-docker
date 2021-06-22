@@ -9,53 +9,142 @@
         http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
         http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
 
-    <!--
-        Pipeline used to acquire metadata for service.
+    <bean id="logItemErrors" class="net.shibboleth.metadata.pipeline.StatusMetadataLoggingStage"
+        p:id="logItemErrors" p:selectionRequirements-ref="errorStatusClass"/>
 
-        Input: empty collection.
+    <bean id="removeErrorItems" class="net.shibboleth.metadata.pipeline.ItemMetadataFilterStage"
+        p:id="removeErrorItems"
+        p:selectionRequirements-ref="errorStatusClass"/>
 
-        Output: collection of individual entity metadata items.
-    -->
-    <bean id="source.SAML" parent="SimplePipeline">
-        <property name="stages">
-            <list>
-                <bean parent="DOMResourceSourceStage">
-                    <property name="DOMResource">
-                        <bean parent="FileSystemResource">
-				<constructor-arg value="${mdq.home}/edugain2idem-metadata-sha256.xml"/>
-                        </bean>
-                    </property>
-                </bean>
+    <bean id="it_idem_productionAggregate_url" class="java.lang.String">
+        <constructor-arg value="http://md.idem.garr.it/metadata/idem-metadata-sha256.xml"/>
+    </bean>
 
-                <ref bean="disassemble"/>
+    <bean id="it_idem_edugain_productionAggregate_url" class="java.lang.String">
+        <constructor-arg value="http://md.idem.garr.it/metadata/edugain2idem-metadata-sha256.xml"/>
+    </bean>
 
-                <ref bean="populateItemIds"/>
-                <ref bean="populateRegistrationAuthorities"/>
-
-                <bean class="net.shibboleth.metadata.pipeline.ItemIdTransformStage">
-                    <property name="idTransformers">
-                        <list>
-                            <bean class="net.shibboleth.metadata.pipeline.MDQuerySHA1ItemIdTransformer"/>
-                        </list>
-                    </property>
-                </bean>
-
-                <!--
-                    Perform an identity transform to ward off signature issues.
-
-                    See https://issues.shibboleth.net/jira/browse/MDA-144
-                -->
-                <bean id="identity.transform" parent="XSLTransformationStage">
-                    <property name="XSLResource">
-                        <bean parent="ClassPathResource">
-                            <constructor-arg value="identity.xsl"/>
-                        </bean>
-                    </property>
-                </bean>
-
-            </list>
+    <bean id="it_idem_edugain_productionAggregate" parent="DOMResourceSourceStage"
+        p:id="it_idem_edugain_productionAggregate">
+        <property name="DOMResource">
+            <bean parent="HTTPResource">
+                <constructor-arg name="client" ref="httpClient"/>
+                <constructor-arg name="url"    ref="it_idem_edugain_productionAggregate_url"/>
+            </bean>
         </property>
     </bean>
 
+    <bean id="it_idem_signingCertificate" parent="X509CertificateFactoryBean">
+        <property name="resource">
+            <bean parent="FileSystemResource">
+                <constructor-arg value="${mdq.home}/it_idem/idem-signer-20220121.pem"/>
+            </bean>
+        </property>
+    </bean>
+
+    <bean id="it_idem_checkSignature" parent="XMLSignatureValidationStageSHA256"
+        p:id="it_idem_checkSignature">
+        <property name="verificationCertificate" ref="it_idem_signingCertificate"/>
+    </bean>
+
+
+    <bean id="removeInvalidContactPerson" class="net.shibboleth.metadata.dom.saml.ContactPersonFilterStage">
+        <property name="id" value="removeInvalidContactPerson"/>
+        <property name="whitelistingTypes" value="false"/>
+    </bean>
+    
+    <bean id="createEntitiesDescriptor" class="net.shibboleth.metadata.dom.saml.EntitiesDescriptorAssemblerStage">
+        <property name="id" value="createEntitiesDescriptor"/>
+    </bean>
+
+    <bean id="generateContentReferenceId" class="net.shibboleth.metadata.dom.saml.GenerateIdStage">
+        <property name="id" value="generateContentReferenceId" />
+    </bean>
+    
+    <bean id="signMetadata" class="net.shibboleth.metadata.dom.XMLSignatureSigningStage">
+        <property name="id" value="signMetadata"/>
+        <property name="privateKey">
+            <bean class="net.shibboleth.ext.spring.factory.PrivateKeyFactoryBean">
+                <property name="resource">
+                    <bean class="org.springframework.core.io.FileSystemResource">
+                        <constructor-arg>
+                            <bean class="java.io.File">
+                                <constructor-arg value="${creds.dir}/signing.key"/>
+                            </bean>
+                        </constructor-arg>
+                    </bean>
+                </property>
+            </bean>
+        </property>
+    </bean>
+
+    <bean id="serializeSignedMetadata" class="net.shibboleth.metadata.pipeline.SerializationStage">
+        <property name="id" value="serializeIdPs"/>
+        <property name="outputFile">
+            <bean class="java.io.File">
+                <constructor-arg value="/tmp/md.signed.xml"/>
+            </bean>
+        </property>
+        <property name="serializer">
+            <bean id="domSerializer" class="net.shibboleth.metadata.dom.DOMElementSerializer" />
+        </property>
+    </bean>
+
+    <bean id="retainIdPs" class="net.shibboleth.metadata.dom.saml.EntityRoleFilterStage"
+    p:id="retainIdPs" p:whitelistingRoles="true">
+        <property name="designatedRoles">
+            <util:list>
+                <bean class="javax.xml.namespace.QName">
+                    <constructor-arg value="urn:oasis:names:tc:SAML:2.0:metadata"/>
+                    <constructor-arg value="IDPSSODescriptor"/>
+                </bean>
+                <bean class="javax.xml.namespace.QName">
+                    <constructor-arg value="urn:oasis:names:tc:SAML:2.0:metadata"/>
+                    <constructor-arg value="AttributeAuthorityDescriptor"/>
+                </bean>
+            </util:list>
+        </property>
+    </bean>
+
+    <bean id="serializeDiscoFeed" parent="mda.SerializationStage">
+        <property name="serializer">
+            <bean id="discogen" parent="mda.DiscoFeedCollectionSerializer"
+                p:prettyPrinting="true"
+                p:includingLegacyDisplayNames="true"/>
+        </property>
+        <property name="outputFile">
+            <bean class="java.io.File">
+                <constructor-arg value="/tmp/discofeed.json"/>
+            </bean>
+        </property>
+    </bean>
+
+    <bean id="source.SAML" parent="SimplePipeline">
+        <property name="stages">
+            <list>
+
+                <ref bean="it_idem_edugain_productionAggregate"/>
+
+                <ref bean="check_validUntil"/>
+                <ref bean="it_idem_checkSignature"/>
+                <ref bean="errorTerminatingFilter"/>
+                <ref bean="retainIdPs"/>
+                <ref bean="disassemble"/>
+                <bean id="populateItemIds" class="net.shibboleth.metadata.dom.saml.EntityDescriptorItemIdPopulationStage">
+                    <property name="id" value="populateItemIds"/>
+                </bean>
+
+                <ref bean="generateContentReferenceId" />
+
+                <ref bean="signMetadata"/>
+
+                <ref bean="serializeSignedMetadata"/>
+                <!--
+                <ref bean="createEntitiesDescriptor"/>
+                <ref bean="serializeDiscoFeed"/>
+                -->
+            </list>
+        </property>
+    </bean>
 
 </beans>

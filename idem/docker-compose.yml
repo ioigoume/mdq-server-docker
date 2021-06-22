@@ -21,7 +21,6 @@ services:
       - ./logs:/opt/mdq-server/logs
       - ./creds:/opt/mdq-server/creds
       - ./resources/config.xml:/workspace/BOOT-INF/classes/config.xml
-      - ./resources/edugain2idem-metadata-sha256.xml:/workspace/BOOT-INF/classes/edugain2idem-metadata-sha256.xml
       - ./resources/config/application.properties:/workspace/BOOT-INF/classes/config/application.properties
       - ./resources/it_idem/beans.xml:/workspace/BOOT-INF/classes/it_idem/beans.xml
       - ./resources/it_idem/idem-signer-20220121.pem:/workspace/BOOT-INF/classes/it_idem/idem-signer-20220121.pem
