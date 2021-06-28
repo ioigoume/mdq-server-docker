@@ -18,6 +18,7 @@ services:
     mem_limit: 1.5g
 
     volumes:
+      - ./shared-volume:/root/shared-volume
       - ./logs:/opt/mdq-server/logs
       - ./creds:/opt/mdq-server/creds
       - ./resources/config.xml:/workspace/BOOT-INF/classes/config.xml

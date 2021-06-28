@@ -82,7 +82,7 @@
         <property name="id" value="serializeIdPs"/>
         <property name="outputFile">
             <bean class="java.io.File">
-                <constructor-arg value="/tmp/md.signed.xml"/>
+                <constructor-arg value="/root/shared-volume/md.signed.xml"/>
             </bean>
         </property>
         <property name="serializer">
@@ -114,7 +114,7 @@
         </property>
         <property name="outputFile">
             <bean class="java.io.File">
-                <constructor-arg value="/tmp/discofeed.json"/>
+                <constructor-arg value="/root/shared-volume/discofeed.json"/>
             </bean>
         </property>
     </bean>
@@ -135,9 +135,11 @@
                 </bean>
 
                 <ref bean="generateContentReferenceId" />
-
+                
+                <ref bean="serializeDiscoFeed"/>
+                
                 <ref bean="signMetadata"/>
-
+                              
                 <ref bean="serializeSignedMetadata"/>
                 <!--
                 <ref bean="createEntitiesDescriptor"/>
