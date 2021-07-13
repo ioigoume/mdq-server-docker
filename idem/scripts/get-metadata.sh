@@ -3,12 +3,18 @@
 ENTITYID=${ENTITYID:-https://idp.infn.it/saml2/idp/metadata.php}
 
 sha1=`echo -n $ENTITYID  | sha1sum | awk '{print $1}'`
-file=../shared-volume/_$sha1.xml
+dir=../shared-volume
+file=$dir/_$sha1.xml
 
-if [[ -f $file ]]
+if [[ -d "$dir" ]]
 then
-    cat $file
-    echo ""
+    if [[ -f $file ]]
+    then
+        cat $file
+        echo ""
+    else
+        echo "Entity '$ENTITYID' is unknown."
+    fi
 else
-    echo "Entity '$ENTITYID' is unknown."
+    echo "Directory $dir does not exist."
 fi
