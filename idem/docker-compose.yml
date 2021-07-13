@@ -24,7 +24,6 @@ services:
       - ./resources/config.xml:/workspace/BOOT-INF/classes/config.xml
       - ./resources/entities.xml:/workspace/BOOT-INF/classes/entities.xml
       - ./resources/config/application.properties:/workspace/BOOT-INF/classes/config/application.properties
-      - ./resources/it_idem/beans.xml:/workspace/BOOT-INF/classes/it_idem/beans.xml
       - ./resources/it_idem/idem-signer-20220121.pem:/workspace/BOOT-INF/classes/it_idem/idem-signer-20220121.pem
 
     networks:
