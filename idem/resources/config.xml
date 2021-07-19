@@ -143,7 +143,7 @@
         </property>
         <property name="outputFile">
             <bean class="java.io.File">
-                <constructor-arg value="/root/shared-volume/pre-entity-output.xml"/>
+                <constructor-arg value="/root/shared-volume/filtered-aggregate.xml"/>
             </bean>
         </property>
         
@@ -174,13 +174,11 @@
                 <ref bean="retainIdPs"/>
                 <ref bean="disassembleEntitiesDescriptor"/>
                 <ref bean="populateItemID"/>
-                <ref bean="generateContentReferenceId" />
-                <ref bean="serializeDiscoFeed"/>
-                <!--
-                <ref bean="createEntitiesDescriptor"/>
-                -->
+                <ref bean="generateContentReferenceId" />              
+                <ref bean="serializeDiscoFeed"/>                
+                <ref bean="createEntitiesDescriptor"/>                
                 <ref bean="signMetadata"/>
-                <ref bean="serialize"/>
+                <ref bean="serializeSignedMetadata"/>
             </list>
         </property>
     </bean>
