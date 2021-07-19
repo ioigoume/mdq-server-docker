@@ -6,10 +6,8 @@ sha1=`echo -n $ENTITYID  | sha1sum | awk '{print $1}'`
 dir=../shared-volume
 file=$dir/_$sha1.xml
 
-if [[ -d "$dir" ]]
-then
-    if [[ -f $file ]]
-    then
+if [ -d "$dir" ]; then
+    if [ -f $file ]; then
         cat $file
         echo ""
     else
