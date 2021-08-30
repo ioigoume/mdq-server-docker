@@ -1,4 +1,7 @@
 #!/bin/bash
 
 set -xe
-docker build -t cnafsd/mdq-server:latest .
+
+IMAGE_NAME="cnafsd/mdq-server:latest"
+
+docker build --no-cache=true -t ${IMAGE_NAME} .
