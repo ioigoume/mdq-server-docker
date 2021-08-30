@@ -1,2 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
+
+set -xe
 docker build -t cnafsd/mdq-server:latest .

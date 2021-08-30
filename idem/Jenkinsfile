@@ -11,7 +11,7 @@ pipeline {
     stage('build image') {
       steps {
         script {
-          sh 'docker build --no-cache -t cnafsd/mdq-server:latest'
+          sh './build'
         }
       }
     }
