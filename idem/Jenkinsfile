@@ -10,8 +10,10 @@ pipeline {
   stages {
     stage('build image') {
       steps {
-        script {
-          sh './build-image.sh'
+        dir('idem') {
+          script {
+            sh './build-image.sh'
+          }
         }
       }
     }
