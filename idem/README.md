@@ -73,7 +73,11 @@ persist between container invocations.
 
 ## Fetch data from server
 
-A simple shell script ([mdq_url.sh](scripts/mdq_url.sh)) compute the request URL for the given `IDENTIFIER` as specified by the MDQ protocol. 
+The service responds to the following endpoints
+* `/entities` it loads all entities
+* `/entities/{URL_encoded_entityID}` it loads signed medatada for the corresponding `entityID`
+  
+A simple shell script ([mdq_url.sh](scripts/mdq_url.sh)) compute the request URL for the given `entityID` as specified by the MDQ protocol. 
 
 Set  the environment variable `MDQ_BASE_URL` before using this script if you don't want to use the default url (`mdq-test.cloud.cnaf.infn.it`). If you do not pass any argument to the script, the INFN idp's entityID is used as default identifier.
 
