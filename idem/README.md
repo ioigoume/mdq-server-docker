@@ -73,9 +73,9 @@ persist between container invocations.
 
 ## Fetch data from server
 
-A simple shell script ([mdq_url.sh](scripts/mdq_url.sh)) compute the request URL for the given IDENTIFIER as specified by the MDQ protocol. 
+A simple shell script ([mdq_url.sh](scripts/mdq_url.sh)) compute the request URL for the given `IDENTIFIER` as specified by the MDQ protocol. 
 
-Set  the environment variable MDQ_BASE_URL before using this script if you don't want to use the default url `mdq-test.cloud.cnaf.infn.it`. If you do not pass any argument to the script, the INFN idp's entityID is used as default identifier.
+Set  the environment variable `MDQ_BASE_URL` before using this script if you don't want to use the default url (`mdq-test.cloud.cnaf.infn.it`). If you do not pass any argument to the script, the INFN idp's entityID is used as default identifier.
 
 Usage example:
 ```
@@ -83,4 +83,12 @@ Usage example:
  $ ./scripts/mdq_url.sh -v https://sso.example.org/idp
  Using base URL http://mdq.example.com/public
  http://mdq.example.com/public/entities/https%3A%2F%2Fsso.example.org%2Fidp
+```
+
+In order to get the signed metadata of a particular `entityID` located in the `shared-volume` shared with the container one can use the [get-metadata.sh](scripts/get-metadata.sh) script. Default `entityID` is set to the INFN one.
+
+Usage example:
+```
+$ cd scripts
+$ ENTITYID=https://idp.admin.grnet.gr/idp/shibboleth ./get-metadata.sh
 ```
