@@ -10,8 +10,12 @@ customised to serve up SAML metadata from various sources.
 The following directories contain Docker recipes for specific
 deployments:
 
-* [`incommon`](incommon/) is a deployment configured to
+* [`idem`](idem/) is a deployment configured to
 serve up metadata from the
+[IDEM Italian Federation](https://www.idem.garr.it/) and test entities.
+
+
+* [`incommon`](incommon/) serves up metadata from the
 [InCommon Federation](https://incommon.org) and the
 [eduGAIN](http://www.edugain.org) inter-federation metadata exchange service.
 
@@ -22,6 +26,12 @@ Shibboleth unit tests.
 * [`ukf`](ukf/) sources metadata from the
 [UK Access Management Federation](http://ukfederation.org.uk/)'s
 production metadata aggregate.
+
+### `idem` deployment
+
+Please refer to the dedicated [`README`](idem/README.md) file.
+
+### `incommon` / `static` / `ukf` deployments
 
 Each deployment is built on top of the `iay/mdq-server-base` image,
 which factors out a lot of common configuration. The recipe for
@@ -39,6 +49,7 @@ deployment.
 The `./cleanup` script can be used at any time to remove orphaned
 containers and images, which Docker tends to create in abundance during
 development. Use `./cleanup -n` to "dry run" and see what it would remove.
+
 
 ## Copyright and License
 
