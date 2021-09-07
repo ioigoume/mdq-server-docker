@@ -14,13 +14,16 @@
 # by the Metadata Query Protocol specification. In a SAML context the 
 # IDENTIFIER is usually a SAML entityID, which is used to fetch a single 
 # entity descriptor.
+# If you do not pass any argument to this script, the INFN idp's entityID
+# is used as default identifier.
 #
-# Note: set environment variable MDQ_BASE_URL before using this script.
+# Note: set environment variable MDQ_BASE_URL before using this script
+# if you don't want to use the default url 'mdq-test.cloud.cnaf.infn.it'.
 #
 # Example:
 #
 # $ export MDQ_BASE_URL=http://mdq.example.com/public
-# $ mdq_url.sh -v https://sso.example.org/idp
+# $ ./mdq_url.sh -v https://sso.example.org/idp
 # Using base URL http://mdq.example.com/public
 # http://mdq.example.com/public/entities/https%3A%2F%2Fsso.example.org%2Fidp
 #
@@ -28,13 +31,10 @@
 # https://github.com/iay/md-query
 ###########################################################
 
-script_name=${0##*/}  # equivalent to basename $0
+MDQ_BASE_URL=${MDQ_BASE_URL:-mdq-test.cloud.cnaf.infn.it}
+IDENTIFIER=${IDENTIFIER:-https://idp.infn.it/saml2/idp/metadata.php}
 
-# check the required environment variable
-if [ -z "$MDQ_BASE_URL" ]; then
-	echo "ERROR: $script_name: environment variable MDQ_BASE_URL does not exist" >&2
-	exit 2
-fi
+script_name=${0##*/}  # equivalent to basename $0
 
 # Construct a request URL per the MDQ Protocol specification
 # See: https://github.com/iay/md-query
@@ -58,9 +58,9 @@ construct_mdq_url () {
 	
 	# append the identifier if there is one
 	if [ $# -eq 2 ]; then
-		echo "${base_url}/entities/$2"
+		echo "https://${base_url}/entities/$2"
 	else
-		echo "${base_url}/entities"
+		echo "https://${base_url}/entities"
 	fi
 }
 
@@ -68,12 +68,6 @@ construct_mdq_url () {
 # see: https://gist.github.com/cdown/1163649
 urlencode () {
 	# urlencode <string>
-	
-	# make sure there is one (and only one) command-line argument
-	if [ $# -ne 1 ]; then
-		echo "ERROR: $FUNCNAME: incorrect number of arguments: $# (1 required)" >&2
-		return 2
-	fi
 
 	local length="${#1}"
 	for (( i = 0; i < length; i++ )); do
@@ -128,11 +122,10 @@ if [ $# -eq 1 ]; then
 		echo "ERROR: $script_name: failed to URL-encode the identifier" >&2
 		exit $return_status
 	fi
-	request_url=$( construct_mdq_url $MDQ_BASE_URL $encoded_id )
 else
-	echo "ERROR: $script_name: incorrect number of arguments: $# (1 required)" >&2
-	exit 2
+	encoded_id=$( urlencode "$IDENTIFIER" )
 fi
+request_url=$( construct_mdq_url $MDQ_BASE_URL $encoded_id )
 
 # was the URL successfully constructed?
 return_status=$?
