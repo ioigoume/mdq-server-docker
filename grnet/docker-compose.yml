@@ -1,0 +1,33 @@
+version: '3.5'
+
+services:
+
+  mdq-server:
+
+    image: grnet/mdq-server:latest
+
+    container_name: mdq-server
+
+    restart: unless-stopped
+
+    hostname: mdq-server.grnet.test
+
+    ports:
+      - "8080:80"
+
+    mem_limit: 1.5g
+
+    volumes:
+      - ./shared-volume:/root/shared-volume
+      - ./logs:/opt/mdq-server/logs
+      - ./creds:/opt/mdq-server/creds
+      - ./resources/config.xml:/workspace/BOOT-INF/classes/config.xml
+      - ./resources/entities.xml:/workspace/BOOT-INF/classes/entities.xml
+      - ./resources/config/application.properties:/workspace/BOOT-INF/classes/config/application.properties
+      - ./resources/grnet/idem-signer-20220121.pem:/workspace/BOOT-INF/classes/grnet/idem-signer-20220121.pem
+
+    networks:
+      default:
+        aliases:
+          - mdq-server.local.io
+  
